@@ -1,0 +1,2 @@
+Hello test from { data['email'] }
+email is {{ dic['email'] }}
