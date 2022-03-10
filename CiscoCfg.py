@@ -102,7 +102,7 @@ def scp_file(filename, user, dest, path):
     p = subprocess.Popen(os_cmd, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     p.stdin.write(b"\n")   # <-- second magic happens here for sending copy confirmation to the router
     out, err = p.communicate()
-    if err!='':
+    if p.returncode!=0:
        print ("Error: subprocess return:\n{err}".format(err=err))
        raise OSError("Error during file transfer")
     print (out)
