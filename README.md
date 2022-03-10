@@ -18,25 +18,25 @@ export SSH_ASKPASS=/home/user/cisco_ssh_cfg/askpass.sh
 ## A quick tour
 
 - We will use the loopback.j0 template to add a loopback to the cisco router reachable by ssh at the address 10.0.0.1 with the cisco/cisco credentials
-- First ensure credentials are ok by running `setsid -w ssh -l cisco 10.0.0.1 show clock'`. This should return the router'time and date.
-- Check template content :
-```
-cat loopback.j0
-interface Loopback $loop_nb
-  ip address $ip_addr 255.255.255.255
-end
-```
-- generate the configuration for loopback #777 and ip address 7.7.7.7/32 and send it to the router :
-```
-python cisco_ssh_cfg.py -a 10.0.0.1 -u cisco -t loopback.j0 -d '{ "loop_nb": 777, "ip_addr": "7.7.7.7" }'
-```
-- you can monitor the operation on the target router using :
+- Check router's credentials and open a terminal with `setsid -w ssh -l cisco 10.0.0.1'`. Use following configuration and command to monitor the changes :
 ```
 conf t
 aaa accounting commands local
 end
 ter mon
 ```
+- In a new terminal window, check template content :
+```
+cat loopback.j0
+interface Loopback $loop_nb
+  ip address $ip_addr 255.255.255.255
+end
+```
+- Generate the configuration for loopback #777 and ip address 7.7.7.7/32 and send it to the router :
+```
+python CiscoCfg.py -a 10.0.0.1 -u cisco -t loopback.j0 -d '{ "loop_nb": 777, "ip_addr": "7.7.7.7" }'
+```
+
 
 ## Advanced features :
 - use a json file for the -d parameter instead of inline input by adding a @ to the file reference (same as curl)
