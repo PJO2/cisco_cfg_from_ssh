@@ -39,7 +39,7 @@ ter mon
 ```
 
 ## Advanced features :
-- use a json file instead of inline parameters by adding a @ to the filename and passing as -d parameter (same as curl)
+- use a json file for the -d parameter instead of inline input by adding a @ to the file reference (same as curl)
 - use the tipyte jinja2-like template engine (congratulations to Eric Pruitt) with `-E tipyte`
 - dryrun mode with -D [-o /dev/stdout]
 - delayed configuration change with -w parameter and EEM
