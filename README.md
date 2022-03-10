@@ -21,6 +21,7 @@ export SSH_ASKPASS=/home/user/cisco_ssh_cfg/askpass.sh
 - Check router's credentials and open a terminal with `setsid -w ssh -l cisco 10.0.0.1'`. Use following configuration and command to monitor the changes :
 ```
 conf t
+ip scp server enable
 aaa accounting commands local
 end
 ter mon
