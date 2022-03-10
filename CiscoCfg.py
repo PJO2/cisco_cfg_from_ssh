@@ -74,7 +74,7 @@ def render_template(engine, tmpl_name, out_file, data):
        render_inbox = tipyte.template_to_function(tmpl_name, escaper=nothing)
        result = render_inbox(data)  # do not use kwargs syntax data=data
    else:
-       raise AttrbuteError("Unknown template engine")
+       raise AttributeError("Unknown template engine")
    # write result in a file
    with open (out_file, 'w') as w:
        w.write(result)
@@ -102,8 +102,11 @@ def scp_file(filename, user, dest, path):
     p = subprocess.Popen(os_cmd, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     p.stdin.write(b"\n")   # <-- second magic happens here for sending copy confirmation to the router
     out, err = p.communicate()
+    if err!='':
+       print ("Error: subprocess return:\n{err}".format(err=err))
+       raise OSError("Error during file transfer")
     print (out)
-    return err==0 
+    return err 
 
 
 def load_file_delayed(filename, user, dest, wait):
