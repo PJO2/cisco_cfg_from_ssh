@@ -1,8 +1,0 @@
-interface Gi 1
-  vrf forwarding ADMIN
-  ip address dhcp
-  exit
-ip route vrf ADMIN 193.105.90.0 255.255.255.0 $next_hop
-no ip route 193.105.90.0 255.255.255.0 $next_hop
-
-end

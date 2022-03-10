@@ -1,4 +1,4 @@
-interface Loopback $nb
-  ip address $address 255.255.255.255
+interface Loopback $loop_nb
+  ip address $ip_addr 255.255.255.255
 end
 

@@ -1,3 +1,0 @@
-show clock
-show ver
-show interface $name | i ^[A-Z]|rate

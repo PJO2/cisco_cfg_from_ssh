@@ -17,16 +17,16 @@ export SSH_ASKPASS=/home/user/cisco_ssh_cfg/askpass.sh
 
 ## A quick tour
 
-- create the simple template using the commands 
+- We will use the loopback.j0 template to add a loopback to the cisco router reachable by ssh at the address 10.0.0.1 with the cisco/cisco creadentials
 ```
-cat << EOF > 'loop.j0'
+cat loopback.j0
 interface Loopback $loop_nb
   ip address $ip_add 255.255.255.255
 end
 ```
 - send the configuration for loopback 777 and ip address 7.7.7.7/32 to the router already configured with the managment address 10.0.0.1 :
 ```
-python cisco_ssh_cfg.py -a 10.0.0.1 -t loop.j0 -d '{ "loop_nb": 777, "ip_add": "7.7.7.7" }'
+python cisco_ssh_cfg.py -a 10.0.0.1 -t loop.j0 -d '{ "loop_nb": 777, "ip_addr": "7.7.7.7" }'
 ```
 
 
