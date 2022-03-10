@@ -3,6 +3,7 @@
 # Note : 
 #    SSH_ASKPASS must point to an executable file which contains echo 'SSH pwd'
 # by PJO
+# https://github.com/PJO2/cisco_ssh_cfg
 # ----------------------------------------------------------------------------
 
 import optparse
@@ -14,6 +15,7 @@ import subprocess
 
 # disable prompt for new ssh connections (setsid may not behave correctly)
 SSH_OPTIONS = '-o StrictHostKeyChecking=no'
+SETSID_OPTIONS = '-w'
 
 # Cisco location to store file before putting it in runing-config
 CISCO_FILESYSTEM  =   "bootflash:/"
@@ -81,8 +83,8 @@ def render_template(engine, tmpl_name, out_file, data):
 def scp_file(filename, user, dest, path):
     """ download the config file to the device """
     os_scp_tmpl_cmd = ( [
-                        'setsid', 		# <-- first magic to skip ssh from asking password
-                        '-w',
+                        'setsid', ]		# <-- first magic to skip ssh from asking password
+                      + SETSID_OPTIONS.split() + [
                         'scp', ] 
                       + SSH_OPTIONS.split() + [
                         '{file}',
