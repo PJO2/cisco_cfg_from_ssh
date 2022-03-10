@@ -17,16 +17,30 @@ export SSH_ASKPASS=/home/user/cisco_ssh_cfg/askpass.sh
 
 ## A quick tour
 
-- We will use the loopback.j0 template to add a loopback to the cisco router reachable by ssh at the address 10.0.0.1 with the cisco/cisco creadentials
+- We will use the loopback.j0 template to add a loopback to the cisco router reachable by ssh at the address 10.0.0.1 with the cisco/cisco credentials
+- First ensure credentials are ok by running `setsid -w ssh -l cisco 10.0.0.1 show clock'`. This should return the router'time and date.
+- Check template content :
 ```
 cat loopback.j0
 interface Loopback $loop_nb
-  ip address $ip_add 255.255.255.255
+  ip address $ip_addr 255.255.255.255
 end
 ```
-- send the configuration for loopback 777 and ip address 7.7.7.7/32 to the router already configured with the managment address 10.0.0.1 :
+- generate the configuration for loopback #777 and ip address 7.7.7.7/32 and send it to the router :
 ```
-python cisco_ssh_cfg.py -a 10.0.0.1 -t loop.j0 -d '{ "loop_nb": 777, "ip_addr": "7.7.7.7" }'
+python cisco_ssh_cfg.py -a 10.0.0.1 -u cisco -t loopback.j0 -d '{ "loop_nb": 777, "ip_addr": "7.7.7.7" }'
+```
+- you can monitor the operation on the target router using :
+```
+conf t
+aaa accounting commands local
+end
+ter mon
 ```
 
+## Advanced features :
+- use a json file instead of inline parameters by adding a @ to the filename and passing as -d parameter (same as curl)
+- use the tipyte jinja2-like template engine (congratulations to Eric Pruitt) with `-E tipyte`
+- dryrun mode with -D [-o /dev/stdout]
+- delayed configuration change with -w parameter and EEM
 
