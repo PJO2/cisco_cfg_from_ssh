@@ -7,20 +7,18 @@ Templating is based either on the python string template or on the tiny [tipyte 
 
 - copy the python files tipyte.py and cisco_ssh_cfg.py into a directory
 - create an executable file `askpassh.sh` which contains
-```
-echo '<your ssh password>'
-```
+```echo '<your ssh password>'```
 - define the `SSK_ASKPASS` environment variable to the file and make it point to the previous file
-```
-export SSH_ASKPASS=/home/user/cisco_ssh_cfg/askpass.sh
-```
+```export SSH_ASKPASS=/home/user/cisco_ssh_cfg/askpass.sh```
 - set the DISPLAY environment variable to an unreachable alias
 ```export DISPLAY=nodisplay```
 
 ## A quick tour
 
-- We will use the loopback.j0 template to add a loopback to the cisco router reachable by ssh at the address 10.0.0.1 with the cisco/cisco credentials
-- Check router's credentials and open a terminal with `setsid -w ssh -l cisco 10.0.0.1'`. Use following configuration and command to monitor the changes :
+We will use the loopback.j0 template to add a loopback to the cisco router reachable by ssh at the address 10.0.0.1 with the cisco/cisco credentials
+
+- Check router's credentials by opening a remote session to the router with `setsid -w ssh -l cisco 10.0.0.1'`. 
+- Ensure scp is enbaled on the router and configure AAA to monitor configuration changes (optional)
 ```
 conf t
 ip scp server enable
