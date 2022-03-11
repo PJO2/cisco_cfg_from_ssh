@@ -14,6 +14,8 @@ echo '<your ssh password>'
 ```
 export SSH_ASKPASS=/home/user/cisco_ssh_cfg/askpass.sh
 ```
+- set the DISPLAY environment variable to an unreachable alias
+```export DISPLAY=nodisplay```
 
 ## A quick tour
 
