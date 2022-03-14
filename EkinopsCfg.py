@@ -1,8 +1,8 @@
 # -----------------------------------------------------------------------------
-# resolve a template and send the configuration to a cisco device 
+# resolve a template and send the configuration to an Ekinops device 
 # by PJO - March 2022                    https://github.com/PJO2/cisco_ssh_cfg
 #
-# Note : Two environment variables must be set before executing CiscoCfg
+# Note : Two environment variables must be set before executing EkinopsCfg
 #    SSH_ASKPASS must point to an executable file which contains echo 'SSH pwd'
 #    DISPLAY     must specify an inaccessible terminal (ex 'nodisplay')
 # ----------------------------------------------------------------------------
@@ -13,26 +13,15 @@ import string
 import os
 import tempfile
 import subprocess
+import time
 
 # disable prompt for new ssh connections (setsid may not behave correctly)
 SSH_OPTIONS = '-o StrictHostKeyChecking=no'
 SETSID_OPTIONS = '-w'
 
-# Cisco location to store file before putting it in runing-config
-CISCO_FILESYSTEM  =   "bootflash:/"
-RUNNING_CONFIG    =   "running-config"
-EEM_TEMPLATE      =   """
-event manager applet CiscoCfgRUN authorization bypass
-  event timer countdown time {wait} maxrun 60
-  action 0.1 cli command "enable"
-  action 1.0 cli command "copy bootflash:/{file} running-config" pattern "running-config"
-  action 1.1 cli command "running-config"
-  action 2.0 syslog msg "Configuration upload done by CiscoCfg.py"
-  action 3.0 cli command "configure terminal"
-  action 3.1 cli command "no event manager applet CiscoCfgRUN"
-  action 3.2 cli command "end"
-end
-"""
+# Ekinops location to store file before putting it in runing-config
+# This directory must have been created before !!
+EKINOPS_FILESYSTEM  =   "/BSA/scripts/"
 
 
 def render_template(tmpl_name, out_file, data, engine):
@@ -74,7 +63,6 @@ def scp_file(filename, username, dest, path):
                      )
     print ("starting upload with cmd: ", os_cmd)
     p = subprocess.Popen(os_cmd, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    p.stdin.write(b"\n")   # <-- second magic happens here for sending copy confirmation to the device 
     out, err = p.communicate()
     if p.returncode!=0:
        print ("Error: subprocess return:\n{err}".format(err=err))
@@ -83,14 +71,33 @@ def scp_file(filename, username, dest, path):
     return err 
 
 
-def load_file_delayed(filename, dest, username, wait):
-    """ activate the configuration file via EEM """
-    with tempfile.NamedTemporaryFile() as temp:
-         eem_cfg = EEM_TEMPLATE.format(wait=wait, file=os.path.basename(filename))
-         temp.write(eem_cfg)
-         temp.flush()
-         rc = scp_file(temp.name, username, dest, RUNNING_CONFIG)
-         return rc
+def ssh_cmd(username, dest, cmd):
+    """ launch a command on remote device """
+    os_ssh_tmpl_cmd = ( [
+                        'setsid', ] # <-- first magic to skip ssh from asking password
+                        + SETSID_OPTIONS.split() + [
+                        'ssh', 
+                        ] 
+                      + SSH_OPTIONS.split() + [
+                        '{username}{at}{dest}',
+                        '{cmd}'
+                        ] )
+    os_cmd = []
+    for word in os_ssh_tmpl_cmd:
+       os_cmd.append ( word.format( cmd=cmd,
+                                    username=username, 
+                                    dest=dest, 
+                                    at ='@' if username!='' else '') 
+                     )
+    print ("starting upload with cmd: ", os_cmd)
+    p = subprocess.Popen(os_cmd, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p.stdin.write (cmd)
+    out, err = p.communicate()
+    if p.returncode!=0:
+       print ("Error: subprocess return:\n{err}".format(err=err))
+       raise OSError("Error during remote ssh command")
+    print ("done, output was:", out)
+    return err 
 
 
 # The global API
@@ -112,12 +119,10 @@ def ssh_cfg (dest, tmpl_name, out_file, data=None, engine='string', username='',
     if dryrun:
         print ("template resolved into {out_file}".format(out_file=out_file))
     else:
-        if delay==0:
-            rc = scp_file (out_file, username, dest, RUNNING_CONFIG)
-        else:
-            # send resolved template to device as a file, then use EEM to load it into running-config after countdown
-            rc = scp_file (out_file, username, dest, CISCO_FILESYSTEM+os.path.basename(out_file))
-            load_file_delayed(out_file, dest, username, delay)
+        rc = scp_file (out_file, username, dest, EKINOPS_FILESYSTEM + os.path.basename(out_file))
+        time.sleep (delay)
+        # !! -echo seems to be mandatory
+        rc = ssh_cmd (username, dest, "exec -exec" + EKINOPS_FILESYSTEM + os.path.basename(out_file))
         os.remove(out_file)
 
 

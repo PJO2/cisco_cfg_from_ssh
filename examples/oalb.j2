@@ -1,0 +1,8 @@
+configure terminal
+{% for loop in loopbacks %}
+interface Loopback {{ loop['nb'] }}
+  ip address {{ loop['ip_addr'] }} 255.255.255.255
+  exit
+{% endfor %}
+exit
+

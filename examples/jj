@@ -1,0 +1,6 @@
+configure terminal
+interface Loopback 987
+  ip address 9.8.7.6 255.255.255.255
+  exit
+exit
+
