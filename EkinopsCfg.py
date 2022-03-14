@@ -122,7 +122,7 @@ def ssh_cfg (dest, tmpl_name, out_file, data=None, engine='string', username='',
         rc = scp_file (out_file, username, dest, EKINOPS_FILESYSTEM + os.path.basename(out_file))
         time.sleep (delay)
         # !! -echo seems to be mandatory
-        rc = ssh_cmd (username, dest, "exec -exec" + EKINOPS_FILESYSTEM + os.path.basename(out_file))
+        rc = ssh_cmd (username, dest, "exec -echo " + EKINOPS_FILESYSTEM + os.path.basename(out_file))
         os.remove(out_file)
 
 
